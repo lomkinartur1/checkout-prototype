@@ -2,368 +2,704 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Checkout Прототип</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout · Прототип</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif}
-@media(max-width:430px){html,body{background:#f5f5f5;align-items:flex-start}.phone{width:100%!important;height:100dvh!important;border-radius:0!important;border:none!important;box-shadow:none!important}}
-.phone{width:390px;height:844px;background:#f5f5f5;border-radius:44px;border:8px solid #1a1a1a;overflow:hidden;position:relative;box-shadow:0 0 0 1px #333,0 32px 64px rgba(0,0,0,0.35)}
-.screen{width:100%;height:100%;overflow:hidden;position:relative}
-.sl{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;background:#f5f5f5;transform:translateX(100%);transition:transform 0.32s cubic-bezier(.4,0,.2,1)}
-.sl.active{transform:translateX(0)}
-.sl.exit{transform:translateX(-100%)}
+:root{
+  --orange:#FF6600;--orange-soft:#FFF5EE;--green:#00B341;--red:#FF3B30;
+  --ink:#1a1a1a;--gray:#8a8a8e;--line:#e5e5e5;--bg:#eef0f3;--card:#fff;
+}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','Helvetica Neue',sans-serif;
+  color:var(--ink);min-height:100vh;
+}
 
-.sb{height:44px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:20}
-.nb{height:44px;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:0.5px solid #e5e5e5;position:sticky;top:44px;z-index:20}
-.nbback{font-size:16px;color:#FF6600;cursor:pointer;min-width:56px}
-.nbttl{font-size:17px;font-weight:600;color:#1a1a1a;flex:1;text-align:center}
-.nbcls{font-size:20px;color:#8a8a8e;cursor:pointer;min-width:56px;text-align:right}
+/* ===== APP CONTAINER ===== */
+.app{
+  width:100%;max-width:480px;margin:0 auto;background:#f5f5f5;
+  min-height:100vh;position:relative;
+}
 
-.slbl{font-size:12px;font-weight:600;color:#8a8a8e;text-transform:uppercase;letter-spacing:0.5px;margin:14px 16px 6px}
-.card{background:#fff;border-radius:16px;margin:0 16px 10px;border:0.5px solid #e5e5e5;overflow:hidden}
+/* ===== SCREENS ===== */
+.sl{display:none;animation:fadeUp .28s cubic-bezier(.4,0,.2,1)}
+.sl.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.narrow{max-width:480px;margin:0 auto;width:100%}
 
-.row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid #f0f0f0}
+/* ===== NAV ===== */
+.nb{height:52px;background:var(--card);display:flex;align-items:center;padding:0 16px;border-bottom:0.5px solid var(--line);position:sticky;top:0;z-index:20}
+.nbback{font-size:15px;color:var(--orange);cursor:pointer;min-width:64px}
+.nbttl{font-size:17px;font-weight:600;color:var(--ink);flex:1;text-align:center}
+.nbcls{font-size:20px;color:var(--gray);cursor:pointer;min-width:64px;text-align:right}
+
+/* ===== LABELS / CARDS / ROWS ===== */
+.slbl{font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin:16px 16px 6px}
+.card{background:var(--card);border-radius:16px;margin:0 16px 10px;border:0.5px solid var(--line);overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:0.5px solid #f0f0f0}
 .row:last-child{border-bottom:none}
-.ri{font-size:17px;width:22px;text-align:center;flex-shrink:0;color:#8a8a8e}
-.rt{flex:1;font-size:15px;color:#1a1a1a;line-height:1.3}
-.ra{font-size:13px;color:#FF6600;font-weight:500;cursor:pointer;flex-shrink:0}
-.rsub{font-size:12px;color:#8a8a8e;margin-top:2px}
+.ri{font-size:17px;width:22px;text-align:center;flex-shrink:0;color:var(--gray)}
+.rt{flex:1;font-size:15px;color:var(--ink);line-height:1.3}
+.ra{font-size:13px;color:var(--orange);font-weight:500;cursor:pointer;flex-shrink:0}
+.rsub{font-size:12px;color:var(--gray);margin-top:2px}
+.row.empty .rt{color:var(--gray)}
+.row.empty{cursor:pointer}
+.row.empty .ri{color:var(--orange)}
+.warn-line{font-size:12px;color:var(--red);margin-top:3px;font-weight:500}
 
+/* ===== TOGGLE ===== */
+.toggle{width:44px;height:26px;border-radius:13px;background:#e5e5e5;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* ===== TRUST ===== */
+.trust{display:flex;gap:10px;justify-content:space-between;padding:12px 16px 0;flex-wrap:wrap}
+.trust-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);line-height:1.2}
+.trust-i b{font-size:13px;font-style:normal}
+
+/* ===== SEGMENTED ===== */
 .seg{display:flex;background:#f0f0f0;border-radius:10px;padding:3px;margin:12px 12px 0}
-.sgb{flex:1;height:36px;border-radius:8px;border:none;background:transparent;font-size:14px;font-weight:500;color:#8a8a8e;cursor:pointer;transition:all .2s;font-family:inherit}
-.sgb.on{background:#fff;color:#FF6600;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.sgb{flex:1;height:36px;border-radius:8px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--gray);cursor:pointer;transition:all .2s;font-family:inherit}
+.sgb.on{background:var(--card);color:var(--orange);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
 
+/* ===== DATE CHIPS ===== */
 .date-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .date-scroll::-webkit-scrollbar{display:none}
-.dchip{flex-shrink:0;border-radius:10px;border:1.5px solid #e5e5e5;background:#fff;padding:7px 10px;cursor:pointer;transition:all .15s}
-.dchip.on{border-color:#FF6600;background:#FFF5EE}
-.dchip-top{font-size:11px;color:#8a8a8e;white-space:nowrap}
-.dchip-mid{font-size:14px;font-weight:600;color:#1a1a1a;white-space:nowrap;margin-top:1px}
-.dchip-bot{font-size:11px;color:#00B341;white-space:nowrap;margin-top:1px}
-.dchip.on .dchip-top,.dchip.on .dchip-mid{color:#FF6600}
+.dchip{flex-shrink:0;border-radius:10px;border:1.5px solid var(--line);background:var(--card);padding:7px 11px;cursor:pointer;transition:all .15s}
+.dchip.on{border-color:var(--orange);background:var(--orange-soft)}
+.dchip-top{font-size:11px;color:var(--gray);white-space:nowrap}
+.dchip-mid{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;margin-top:1px}
+.dchip-bot{font-size:11px;color:var(--green);white-space:nowrap;margin-top:1px}
+.dchip.on .dchip-top,.dchip.on .dchip-mid{color:var(--orange)}
 
+/* ===== PAY CARDS ===== */
 .pay-row{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 0;scrollbar-width:none}
 .pay-row::-webkit-scrollbar{display:none}
-.pc{min-width:90px;height:64px;border-radius:12px;border:1.5px solid #e5e5e5;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:0 10px;cursor:pointer;flex-shrink:0;transition:border-color .15s}
-.pc.on{border-color:#FF6600;border-width:2px}
-.pc.dashed{border-style:dashed}
-.pn{font-size:13px;font-weight:600;color:#1a1a1a}
-.ps{font-size:11px;color:#8a8a8e;margin-top:2px}
-.pbadge{display:inline-block;background:#00B341;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 5px;margin-top:3px}
+.pc{min-width:96px;height:64px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:0 11px;cursor:pointer;flex-shrink:0;transition:border-color .15s}
+.pc.on{border-color:var(--orange);border-width:2px}
+.pc.dashed{border-style:dashed;align-items:center;justify-content:center}
+.pn{font-size:13px;font-weight:600;color:var(--ink)}
+.ps{font-size:11px;color:var(--gray);margin-top:2px}
+.pbadge{display:inline-block;background:var(--green);color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 5px;margin-top:3px}
 
+/* ===== TOTALS ===== */
 .tr{display:flex;justify-content:space-between;font-size:14px;padding:4px 0}
-.tl{color:#8a8a8e}.tv{color:#1a1a1a}.tvg{color:#00B341;font-weight:600}.tvr{color:#FF3B30}
-.tr.main{padding-top:10px;border-top:0.5px solid #e5e5e5;margin-top:4px}
-.tr.main .tl{font-size:16px;font-weight:600;color:#1a1a1a}
-.tr.main .tv{font-size:20px;font-weight:700;color:#1a1a1a}
+.tl{color:var(--gray)}.tv{color:var(--ink)}.tvg{color:var(--green);font-weight:600}.tvr{color:var(--red)}
+.tr.main{padding-top:10px;border-top:0.5px solid var(--line);margin-top:4px}
+.tr.main .tl{font-size:16px;font-weight:600;color:var(--ink)}
+.tr.main .tv{font-size:20px;font-weight:700;color:var(--ink)}
 
-.stick{position:sticky;bottom:0;background:#fff;border-top:0.5px solid #e5e5e5;padding:10px 16px 34px;z-index:20}
-.cbtn{width:100%;height:54px;background:#FF6600;border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
-.cbtn:active{opacity:.8}
-.cbtn.out{background:transparent;border:1.5px solid #FF6600;color:#FF6600}
+/* ===== STICKY CTA ===== */
+.cta-wrap{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--card);border-top:0.5px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:25}
+.cbtn{width:100%;height:54px;background:var(--orange);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s,background .15s}
+.cbtn:active{opacity:.85}
+.cbtn.out{background:transparent;border:1.5px solid var(--orange);color:var(--orange)}
+.cbtn.lead{background:#fff;border:1.5px solid var(--orange);color:var(--orange)}
+.cbtn.warn{background:#fff;border:1.5px solid var(--red);color:var(--red)}
+.legal{font-size:11px;color:#c7c7cc;text-align:center;padding:8px 16px 0;line-height:1.6}
+.legal u{color:var(--gray);cursor:pointer}
 
-.spin{width:44px;height:44px;border:3px solid #f0f0f0;border-top-color:#FF6600;border-radius:50%;animation:sp .9s linear infinite}
+/* ===== SPINNER ===== */
+.spin{width:44px;height:44px;border:3px solid #f0f0f0;border-top-color:var(--orange);border-radius:50%;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-.sheet-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:30;display:none;align-items:flex-end}
+/* ===== SHEETS ===== */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:flex-end;justify-content:center}
 .sheet-bg.open{display:flex}
-.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 16px 40px}
-.sh{width:36px;height:4px;background:#e5e5e5;border-radius:2px;margin:12px auto 16px}
-.fi{width:100%;height:48px;border:1px solid #e5e5e5;border-radius:10px;padding:0 14px;font-size:16px;color:#1a1a1a;background:#fff;outline:none;font-family:inherit}
-.fi:focus{border-color:#FF6600}
-.fl{font-size:12px;color:#8a8a8e;margin-bottom:5px}
-.fw{margin-bottom:10px}.fw:last-child{margin-bottom:0}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:0 16px 32px;animation:sheetUp .26s cubic-bezier(.4,0,.2,1)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@media(min-width:1024px){.sheet-bg{align-items:center}.sheet{border-radius:20px;max-width:420px}.sheet{animation:fadeUp .2s}}
+.sh{width:36px;height:4px;background:var(--line);border-radius:2px;margin:12px auto 16px}
+.sheet-ttl{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:16px}
+.fi{width:100%;height:48px;border:1px solid var(--line);border-radius:10px;padding:0 14px;font-size:16px;color:var(--ink);background:var(--card);outline:none;font-family:inherit}
+.fi:focus{border-color:var(--orange)}
+.fl{font-size:12px;color:var(--gray);margin-bottom:5px}
+.fw{margin-bottom:12px}.fw:last-of-type{margin-bottom:0}
 
-.auth-wrap{display:flex;flex-direction:column;align-items:center;padding:40px 24px 0}
+/* ===== MAP MOCK ===== */
+.map-mock{position:relative;height:190px;border-radius:12px;overflow:hidden;margin:12px 0;border:1px solid var(--line);
+  background-color:#e7ece2;
+  background-image:repeating-linear-gradient(0deg,transparent 0 38px,#d6ddcd 38px 41px),repeating-linear-gradient(90deg,transparent 0 54px,#d6ddcd 54px 57px)}
+.map-mock::after{content:'';position:absolute;top:32%;left:-10%;width:120%;height:9px;background:#c8d0bd;transform:rotate(-9deg)}
+.map-pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);font-size:34px;z-index:3;filter:drop-shadow(0 3px 3px rgba(0,0,0,.3))}
+.map-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:12px;height:6px;background:rgba(0,0,0,.18);border-radius:50%;z-index:2}
+.map-geo{position:absolute;right:10px;bottom:10px;width:36px;height:36px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--orange);box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:3;cursor:pointer}
+.map-hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.78);color:#fff;font-size:11px;padding:5px 10px;border-radius:8px;white-space:nowrap;z-index:3}
+.map-pvz-pin{position:absolute;font-size:26px;cursor:pointer;transform:translate(-50%,-100%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));z-index:3;transition:transform .15s}
+.map-pvz-pin:active{transform:translate(-50%,-100%) scale(1.2)}
+
+/* ===== AUTH ===== */
+.auth-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 24px 0}
 .yabtn{width:100%;height:52px;background:#FC3F1D;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
 .ya-icon{width:28px;height:28px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#FC3F1D;flex-shrink:0}
 .auth-div{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0}
-.auth-div span{font-size:13px;color:#c7c7cc}
-.auth-div::before,.auth-div::after{content:'';flex:1;height:0.5px;background:#e5e5e5}
-.auth-phone-row{display:flex;width:100%;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;margin-bottom:12px}
-.auth-code{width:60px;height:52px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:#f5f5f5;border-right:1px solid #e5e5e5;flex-shrink:0;color:#1a1a1a}
-.auth-inp{flex:1;height:52px;border:none;padding:0 14px;font-size:16px;background:#fff;outline:none;font-family:inherit;color:#1a1a1a}
-.otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid #e5e5e5;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#1a1a1a;transition:border-color .2s}
-.otp-box.filled{border-color:#FF6600}
-.otp-box.active{border-color:#FF6600;box-shadow:0 0 0 3px rgba(255,102,0,.12)}
+.auth-div span{font-size:13px;color:#c7c7cc;white-space:nowrap}
+.auth-div::before,.auth-div::after{content:'';flex:1;height:0.5px;background:var(--line)}
+.auth-phone-row{display:flex;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.auth-code{width:60px;height:52px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:#f5f5f5;border-right:1px solid var(--line);flex-shrink:0;color:var(--ink)}
+.auth-inp{flex:1;height:52px;border:none;padding:0 14px;font-size:16px;background:var(--card);outline:none;font-family:inherit;color:var(--ink)}
+.otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--ink);transition:border-color .2s}
+.otp-box.filled{border-color:var(--orange)}
+.otp-box.active{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,102,0,.12)}
+.kp{width:80px;height:56px;border-radius:12px;border:0.5px solid var(--line);background:var(--card);font-size:22px;font-weight:500;color:var(--ink);cursor:pointer;font-family:inherit}
 
-.suc-top{background:#FF6600;padding:40px 24px 32px;text-align:center}
+/* ===== SUCCESS / ERROR ===== */
+.suc-top{background:var(--orange);padding:44px 24px 32px;text-align:center}
 .suc-circle{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:40px;color:#fff}
+.err-top{background:#fff;padding:48px 24px 8px;text-align:center}
+.err-circle{width:80px;height:80px;border-radius:50%;background:#FFEAE8;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:40px;color:var(--red)}
+
+/* ===== DEMO PANEL ===== */
+.demo-toggle{position:fixed;left:16px;bottom:16px;z-index:60;background:#1a1a1a;color:#fff;border:none;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(0,0,0,.25);display:flex;align-items:center;gap:7px}
+.demo-panel{position:fixed;left:16px;bottom:64px;z-index:60;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);padding:14px;width:248px;display:none;border:0.5px solid var(--line)}
+.demo-panel.open{display:block;animation:fadeUp .2s}
+.demo-h{font-size:12px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.demo-sub{font-size:11px;color:var(--gray);margin-bottom:12px;line-height:1.4}
+.demo-btn{display:block;width:100%;text-align:left;background:#f5f5f5;border:0.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);cursor:pointer;font-family:inherit;margin-bottom:7px;transition:background .15s}
+.demo-btn:last-child{margin-bottom:0}
+.demo-btn:hover{background:#ececec}
+.demo-btn b{display:block;font-weight:600}
+.demo-btn small{color:var(--gray);font-size:11px}
+
+/* ===== DESKTOP ADAPTIVE ===== */
+@media(min-width:900px){
+  body{padding:32px 0}
+  .app{max-width:480px;min-height:auto;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.10);overflow:visible}
+  .app.wide{max-width:1000px}
+  .nb{border-radius:20px 20px 0 0}
+  /* checkout becomes two columns */
+  .checkout-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;padding:8px 4px 24px}
+  .checkout-main{min-width:0}
+  /* денежный виджет: способ оплаты + итого + кнопка, прилипает к верху */
+  .checkout-side{position:sticky;top:24px}
+  .checkout-side>.slbl{margin:16px 16px 6px} /* «Оплата» над виджетом — на одном уровне с «Доставка» слева */
+  .pay-widget{background:#fff;border-radius:16px;border:0.5px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.08);padding:4px 0 14px;overflow:hidden}
+  .pay-widget .slbl{margin:12px 16px 6px;border-top:0.5px solid #f0f0f0;padding-top:14px}
+  .pay-widget .card{margin:0;border:none;border-radius:0}
+  .pay-widget .cta-wrap{padding:12px 16px 0}
+  .pay-widget .legal{padding:10px 16px 0;text-align:left}
+  /* CTA inside the widget, right under the summary */
+  .cta-wrap{position:static;max-width:none;margin:0;padding:0;background:transparent;border-top:none}
+  .card{margin-left:16px;margin-right:16px}
+  .checkout-main .card{margin-left:16px;margin-right:0}
+  .pad-bottom{display:none}
+}
+@media(max-width:899px){
+  .checkout-grid{display:block}
+  .checkout-side{display:block}
+}
+.pad-bottom{height:92px}
+@media(max-width:899px){
+  .demo-toggle{bottom:auto;top:10px;left:auto;right:10px;padding:8px 11px;font-size:12px}
+  .demo-panel{bottom:auto;top:48px;left:auto;right:10px}
+}
 </style>
 </head>
 <body>
-<div class="phone"><div class="screen">
 
-<!-- S0: КОРЗИНА -->
+<div class="app" id="app">
+
+<!-- ===== S0: КОРЗИНА ===== -->
 <div id="s0" class="sl active">
-  <div class="sb"><span style="font-size:15px;font-weight:600">9:41</span><span style="font-size:12px;color:#1a1a1a">●●●● ▲ ▌</span></div>
   <div class="nb"><span class="nbback"></span><span class="nbttl">Корзина</span><span class="nbcls"></span></div>
-  <div style="height:12px"></div>
-  <div class="card">
-    <div style="display:flex;gap:12px;align-items:center;padding:14px 16px">
-      <div style="width:64px;height:64px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">🎧</div>
-      <div style="flex:1"><div style="font-size:15px;font-weight:600;color:#1a1a1a">Sony WH-1000XM5</div><div style="font-size:13px;color:#8a8a8e;margin-top:3px">1 шт. · Чёрный</div></div>
-      <div style="font-size:17px;font-weight:700;color:#1a1a1a">49 990 ₽</div>
+  <div class="narrow">
+    <div style="height:12px"></div>
+    <div class="card" id="cartItems"></div>
+    <div class="card">
+      <div style="padding:14px 16px">
+        <div class="tr"><span class="tl">Товары</span><span class="tv" id="cart-sub"></span></div>
+        <div class="tr"><span class="tl">Скидка</span><span class="tvr" id="cart-disc"></span></div>
+        <div class="tr"><span class="tl">Доставка</span><span class="tv" style="color:var(--gray)">рассчитаем далее</span></div>
+        <div class="tr main"><span class="tl">Итого</span><span class="tv" id="cart-total"></span></div>
+      </div>
     </div>
-    <div style="padding:0 16px 16px;border-top:0.5px solid #f0f0f0">
-      <div class="tr" style="padding-top:12px"><span class="tl">Товары</span><span class="tv">49 990 ₽</span></div>
-      <div class="tr"><span class="tl">Скидка</span><span class="tvr">−500 ₽</span></div>
-      <div class="tr"><span class="tl">Доставка</span><span class="tv" style="color:#8a8a8e">рассчитаем далее</span></div>
-      <div class="tr main"><span class="tl">Итого</span><span class="tv">49 490 ₽</span></div>
-    </div>
+    <div class="pad-bottom"></div>
   </div>
-  <div style="height:90px"></div>
-  <div class="stick"><button class="cbtn" onclick="go(1)">Оформить заказ →</button></div>
+  <div class="cta-wrap"><button class="cbtn" onclick="go(1)">Оформить заказ →</button></div>
 </div>
 
-<!-- S1: АВТОРИЗАЦИЯ -->
+<!-- ===== S1: АВТОРИЗАЦИЯ ===== -->
 <div id="s1" class="sl">
-  <div class="sb"><span style="font-size:15px;font-weight:600">9:41</span><span style="font-size:12px;color:#1a1a1a">●●●● ▲ ▌</span></div>
-  <div class="nb"><span class="nbback" onclick="go(0)">‹ Назад</span><span class="nbttl"></span><span class="nbcls" onclick="go(0)">✕</span></div>
-  <div class="auth-wrap">
+  <div class="nb"><span class="nbback" onclick="go(0)">‹ Назад</span><span class="nbttl"></span><span class="nbcls"></span></div>
+  <div class="narrow auth-wrap">
     <div style="font-size:52px;margin-bottom:20px">🛍</div>
-    <div style="font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:10px;text-align:center">Войдите для оформления</div>
-    <div style="font-size:14px;color:#8a8a8e;text-align:center;margin-bottom:32px;line-height:1.6">Адрес и данные заполнятся автоматически</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:10px;text-align:center">Войдите для оформления</div>
+    <div style="font-size:14px;color:var(--gray);text-align:center;margin-bottom:32px;line-height:1.6">Через Яндекс ID адрес и карта подставятся автоматически</div>
     <div style="width:100%">
-      <button class="yabtn" onclick="go(3)"><div class="ya-icon">Я</div>Войти через Яндекс ID</button>
+      <button class="yabtn" onclick="enter('auth')"><div class="ya-icon">Я</div>Войти через Яндекс ID</button>
       <div class="auth-div"><span>или по номеру телефона</span></div>
       <div class="auth-phone-row">
         <div class="auth-code">+7</div>
         <input class="auth-inp" type="tel" placeholder="___ ___-__-__">
       </div>
       <button class="cbtn" onclick="go(2)">Получить код →</button>
-      <div style="font-size:13px;color:#8a8a8e;text-align:center;margin-top:20px">Продолжить без входа — <span style="color:#FF6600;cursor:pointer" onclick="go(3)">как гость</span></div>
+      <div style="font-size:13px;color:var(--gray);text-align:center;margin-top:20px">Продолжить без входа — <span style="color:var(--orange);cursor:pointer" onclick="enter('guest')">как гость</span></div>
     </div>
   </div>
 </div>
 
-<!-- S2: OTP -->
+<!-- ===== S2: OTP ===== -->
 <div id="s2" class="sl">
-  <div class="sb"><span style="font-size:15px;font-weight:600">9:41</span><span style="font-size:12px;color:#1a1a1a">●●●● ▲ ▌</span></div>
-  <div class="nb"><span class="nbback" onclick="go(1)">‹ Назад</span><span class="nbttl"></span><span class="nbcls" onclick="go(0)">✕</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;padding:40px 24px 0">
-    <div style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:10px">Код из SMS</div>
-    <div style="font-size:14px;color:#8a8a8e;text-align:center;margin-bottom:32px;line-height:1.6">Отправили на +7 937 ··· ··-··<br>Код действует 5 минут</div>
+  <div class="nb"><span class="nbback" onclick="go(1)">‹ Назад</span><span class="nbttl"></span><span class="nbcls"></span></div>
+  <div class="narrow" style="display:flex;flex-direction:column;align-items:center;padding:48px 24px 0">
+    <div style="font-size:20px;font-weight:700;margin-bottom:10px">Код из SMS</div>
+    <div style="font-size:14px;color:var(--gray);text-align:center;margin-bottom:32px;line-height:1.6">Отправили на +7 937 ··· ··-··<br>Код действует 5 минут</div>
     <div style="display:flex;gap:10px;margin-bottom:28px">
       <div class="otp-box active" id="ob0"></div><div class="otp-box" id="ob1"></div><div class="otp-box" id="ob2"></div><div class="otp-box" id="ob3"></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px">
-      <button onclick="otpTap(1)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">1</button>
-      <button onclick="otpTap(2)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">2</button>
-      <button onclick="otpTap(3)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">3</button>
-      <button onclick="otpTap(4)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">4</button>
-      <button onclick="otpTap(5)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">5</button>
-      <button onclick="otpTap(6)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">6</button>
-      <button onclick="otpTap(7)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">7</button>
-      <button onclick="otpTap(8)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">8</button>
-      <button onclick="otpTap(9)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">9</button>
-      <button onclick="otpTap('del')" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#f5f5f5;font-size:18px;color:#8a8a8e;cursor:pointer;font-family:inherit">⌫</button>
-      <button onclick="otpTap(0)" style="width:80px;height:56px;border-radius:12px;border:0.5px solid #e5e5e5;background:#fff;font-size:22px;font-weight:500;color:#1a1a1a;cursor:pointer;font-family:inherit">0</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:264px;margin-bottom:24px">
+      <button class="kp" onclick="otpTap(1)">1</button><button class="kp" onclick="otpTap(2)">2</button><button class="kp" onclick="otpTap(3)">3</button>
+      <button class="kp" onclick="otpTap(4)">4</button><button class="kp" onclick="otpTap(5)">5</button><button class="kp" onclick="otpTap(6)">6</button>
+      <button class="kp" onclick="otpTap(7)">7</button><button class="kp" onclick="otpTap(8)">8</button><button class="kp" onclick="otpTap(9)">9</button>
       <div style="width:80px;height:56px"></div>
+      <button class="kp" onclick="otpTap(0)">0</button>
+      <button class="kp" style="background:#f5f5f5;font-size:18px;color:var(--gray)" onclick="otpTap('del')">⌫</button>
     </div>
-    <div style="font-size:13px;color:#8a8a8e">Не пришло? <span style="color:#FF6600;cursor:pointer">Отправить снова</span></div>
+    <div style="font-size:13px;color:var(--gray)">Не пришло? <span style="color:var(--orange);cursor:pointer">Отправить снова</span></div>
   </div>
 </div>
 
-<!-- S3: ЧЕКАУТ -->
+<!-- ===== S3: ЧЕКАУТ ===== -->
 <div id="s3" class="sl">
-  <div class="sb"><span style="font-size:15px;font-weight:600">9:41</span><span style="font-size:12px;color:#1a1a1a">●●●● ▲ ▌</span></div>
-  <div class="nb"><span class="nbback" onclick="go(1)">‹ Назад</span><span class="nbttl">Оформление</span><span class="nbcls" onclick="go(0)">✕</span></div>
+  <div class="nb"><span class="nbback" onclick="go(0)">‹ Назад</span><span class="nbttl">Оформление</span><span class="nbcls"></span></div>
+  <div class="checkout-grid">
+    <div class="checkout-main">
+      <div class="slbl">Доставка</div>
+      <div class="card">
+        <div class="seg">
+          <button class="sgb on" id="sc" onclick="setDel('c')">Курьер</button>
+          <button class="sgb" id="sp" onclick="setDel('p')">Пункт выдачи</button>
+        </div>
+        <div style="height:10px"></div>
+        <div id="addrRow"></div>
+        <div id="recipientRow"></div>
+        <div id="courier-opts">
+          <div class="row toggle-row" style="border-top:0.5px solid #f0f0f0"><span class="ri">🚪</span><div class="rt">Оставить у двери</div><div class="toggle" id="tg-door" onclick="toggleOpt('door')"></div></div>
+          <div class="row toggle-row"><span class="ri">🔕</span><div class="rt">Не звонить, напишу в чат</div><div class="toggle" id="tg-call" onclick="toggleOpt('call')"></div></div>
+          <div class="row empty" id="comment-row" style="border-bottom:none" onclick="openSheet('sheet-comment')"><span class="ri">💬</span><div style="flex:1"><div class="rt" id="comment-text">Комментарий курьеру</div></div><span class="ra">Добавить</span></div>
+        </div>
+      </div>
 
-  <div class="slbl">Доставка</div>
-  <div class="card">
-    <div class="seg">
-      <button class="sgb on" id="sc" onclick="setDel('c')">Курьер</button>
-      <button class="sgb" id="sp" onclick="setDel('p')">Пункт выдачи</button>
+      <div class="card">
+        <div id="courier-dates" style="padding:12px 16px;border-bottom:0.5px solid #f0f0f0">
+          <div style="font-size:12px;color:var(--gray);margin-bottom:8px">Дата доставки</div>
+          <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:8px">⚡ Закажите сегодня до 14:00 — привезём завтра</div>
+          <div class="date-scroll" id="dateScroll"></div>
+        </div>
+        <div id="pvz-date" style="display:none;padding:12px 16px;border-bottom:0.5px solid #f0f0f0">
+          <div style="font-size:12px;color:var(--gray);margin-bottom:6px">Доставим в пункт выдачи</div>
+          <div style="font-size:14px;font-weight:600;color:var(--green)" id="pvz-eta">Послезавтра · Бесплатно</div>
+        </div>
+        <div id="checkoutItems"></div>
+      </div>
     </div>
-    <div style="height:10px"></div>
-    <div class="row">
-      <span class="ri">📍</span>
-      <div style="flex:1"><div class="rt" id="addr-text">Москва, ул. Яблочкова, 49</div></div>
-      <span class="ra">Изменить</span>
-    </div>
-    <div class="row" style="border-bottom:none">
-      <span class="ri">👤</span>
-      <div style="flex:1"><div class="rt">Артур Л. · +7 937 237-65-99</div></div>
-      <span class="ra">Изменить</span>
-    </div>
-  </div>
 
-  <div class="card">
-    <div id="courier-dates" style="padding:12px 16px;border-bottom:0.5px solid #f0f0f0">
-      <div style="font-size:12px;color:#8a8a8e;margin-bottom:8px">Дата доставки</div>
-      <div class="date-scroll" id="dateScroll"></div>
-    </div>
-    <div id="pvz-date" style="display:none;padding:12px 16px;border-bottom:0.5px solid #f0f0f0">
-      <div style="font-size:12px;color:#8a8a8e;margin-bottom:6px">Доставим в пункт выдачи</div>
-      <div style="font-size:14px;font-weight:600;color:#00B341">13 июня (послезавтра) · Бесплатно</div>
-    </div>
-    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px">
-      <div style="width:44px;height:44px;border-radius:8px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎧</div>
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:500;color:#1a1a1a">Sony WH-1000XM5</div>
-        <div style="font-size:12px;color:#8a8a8e;margin-top:2px">1 шт. · Чёрный</div>
+    <div class="checkout-side">
+      <div class="slbl">Оплата</div>
+      <div class="pay-widget">
+        <div class="card" style="padding-bottom:12px">
+          <div class="pay-row" id="payRow"></div>
+          <div id="bnpl-tip" style="display:none;margin:10px 16px 0;background:#EAF3DE;border-radius:10px;padding:10px 14px;border:0.5px solid #C0DD97">
+            <div style="font-size:12px;font-weight:600;color:#3B6D11;margin-bottom:5px">График · Сплит · без переплат</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#3B6D11"><span>6 платежей по</span><strong id="bnpl-m"></strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#3B6D11"><span>Первый сегодня</span><span id="bnpl-f"></span></div>
+          </div>
+        </div>
+        <div class="slbl">Итого</div>
+        <div class="card" style="margin-bottom:0">
+          <div style="padding:14px 16px">
+            <div class="tr"><span class="tl">Товары</span><span class="tv" id="co-sub"></span></div>
+            <div class="tr"><span class="tl">Скидка</span><span class="tvr" id="co-disc"></span></div>
+            <div class="tr" id="co-pay-line" style="display:none"><span class="tl">Оплата СБП</span><span class="tvg" id="co-pay-val"></span></div>
+            <div class="tr"><span class="tl">Доставка</span><span class="tvg">Бесплатно</span></div>
+            <div class="tr main"><span class="tl">К оплате</span><span class="tv" id="co-total"></span></div>
+          </div>
+        </div>
+        <div class="cta-wrap"><button class="cbtn" id="paybtn" onclick="ctaAction()">Оплатить</button></div>
+        <div class="trust">
+          <div class="trust-i"><b>🔒</b>Безопасная<br>оплата</div>
+          <div class="trust-i"><b>↩️</b>Возврат<br>14 дней</div>
+          <div class="trust-i"><b>🛡️</b>Гарантия<br>производителя</div>
+        </div>
+        <div class="legal" id="legal">Нажимая кнопку, вы соглашаетесь с <u>офертой</u> и <u>политикой конфиденциальности</u></div>
       </div>
     </div>
   </div>
-
-  <div class="slbl">Оплата</div>
-  <div class="card" style="padding-bottom:12px">
-    <div class="pay-row" id="payRow"></div>
-    <div id="bnpl-tip" style="display:none;margin:10px 16px 0;background:#EAF3DE;border-radius:10px;padding:10px 14px;border:0.5px solid #C0DD97">
-      <div style="font-size:12px;font-weight:600;color:#3B6D11;margin-bottom:5px">График · Сплит · без переплат</div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:#3B6D11"><span>6 платежей по</span><strong>8 248 ₽</strong></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:#3B6D11"><span>Первый сегодня</span><span>8 248 ₽</span></div>
-    </div>
-  </div>
-
-  <div class="slbl">Итого</div>
-  <div class="card" style="margin-bottom:0">
-    <div style="padding:12px 16px">
-      <div class="tr"><span class="tl">Товары</span><span class="tv">49 990 ₽</span></div>
-      <div class="tr"><span class="tl">Скидка</span><span class="tvr">−500 ₽</span></div>
-      <div class="tr"><span class="tl">Доставка</span><span class="tvg">Бесплатно</span></div>
-      <div class="tr main"><span class="tl">К оплате</span><span class="tv" id="fp">49 490 ₽</span></div>
-    </div>
-  </div>
-  <div style="font-size:11px;color:#c7c7cc;text-align:center;padding:8px 16px 0;line-height:1.6">
-    Нажимая на кнопку, вы соглашаетесь с <span style="color:#8a8a8e;text-decoration:underline;cursor:pointer">условиями оферты</span> и <span style="color:#8a8a8e;text-decoration:underline;cursor:pointer">политикой конфиденциальности</span>
-  </div>
-  <div style="height:90px"></div>
-  <div class="stick">
-    <button class="cbtn" id="paybtn" onclick="go(4)">Оплатить 49 490 ₽</button>
-  </div>
+  <div class="pad-bottom"></div>
 </div>
 
-<!-- S4: ЗАГРУЗКА -->
+<!-- ===== S4: ЗАГРУЗКА ===== -->
 <div id="s4" class="sl">
-  <div class="sb"><span style="font-size:15px;font-weight:600">9:41</span><span style="font-size:12px;color:#1a1a1a">●●●● ▲ ▌</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:85%;gap:20px">
+  <div class="narrow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:20px;padding:80px 32px">
     <div class="spin"></div>
-    <div style="font-size:16px;font-weight:500;color:#1a1a1a;text-align:center;padding:0 32px">Проверяем оплату</div>
-    <div style="font-size:13px;color:#8a8a8e">Обычно несколько секунд</div>
+    <div style="font-size:16px;font-weight:500;text-align:center" id="load-txt">Проверяем оплату</div>
+    <div style="font-size:13px;color:var(--gray)">Обычно несколько секунд</div>
   </div>
 </div>
 
-<!-- S5: УСПЕХ -->
+<!-- ===== S5: УСПЕХ ===== -->
 <div id="s5" class="sl">
-  <div class="sb" style="background:#FF6600"><span style="font-size:15px;font-weight:600;color:#fff">9:41</span><span style="font-size:12px;color:#fff">●●●● ▲ ▌</span></div>
-  <div class="suc-top">
-    <div class="suc-circle">✓</div>
-    <div style="font-size:26px;font-weight:700;color:#fff;margin-bottom:6px">Заказ оформлен!</div>
-    <div style="font-size:14px;color:rgba(255,255,255,.8)">№ 48291</div>
-  </div>
-  <div style="background:#f5f5f5;padding:0 0 20px">
-    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 16px 0;margin-top:-20px;position:relative;z-index:1">
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-        <div style="width:56px;height:56px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:28px">🎧</div>
-        <div><div style="font-size:15px;font-weight:600;color:#1a1a1a">Sony WH-1000XM5</div><div style="font-size:13px;color:#8a8a8e;margin-top:3px">49 490 ₽</div></div>
-      </div>
-      <div style="border-top:0.5px solid #f0f0f0">
-        <div class="row" style="padding:12px 0"><span class="ri">📅</span><span class="rt" id="suc-date">Завтра, 10:00–22:00</span></div>
-        <div class="row" style="padding:12px 0"><span class="ri">📍</span><span class="rt">Москва, ул. Яблочкова, 49</span></div>
-        <div class="row" style="padding:12px 0;border-bottom:none"><span class="ri">✉️</span><span class="rt" style="font-size:13px;color:#8a8a8e">Подтверждение на +7 937 *** 65-99</span></div>
-      </div>
+  <div class="narrow">
+    <div class="suc-top">
+      <div class="suc-circle">✓</div>
+      <div style="font-size:26px;font-weight:700;color:#fff;margin-bottom:6px">Заказ оформлен!</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.85)">№ 48291</div>
     </div>
-    <div style="padding:16px 16px 0">
-      <button class="cbtn" style="margin-bottom:10px" onclick="go(0)">Отследить заказ</button>
-      <button class="cbtn out" onclick="go(0)">Вернуться в магазин</button>
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 16px 0;margin-top:-20px;position:relative">
+      <div id="suc-items"></div>
+      <div style="border-top:0.5px solid #f0f0f0">
+        <div class="row" style="padding:13px 0"><span class="ri">📅</span><span class="rt" id="suc-date">Завтра, 10:00–22:00</span></div>
+        <div class="row" style="padding:13px 0"><span class="ri">📍</span><span class="rt" id="suc-addr">Москва, ул. Яблочкова, 49</span></div>
+        <div class="row" style="padding:13px 0;border-bottom:none"><span class="ri">✉️</span><span class="rt" style="font-size:13px;color:var(--gray)" id="suc-contact">Подтверждение на +7 937 *** 65-99</span></div>
+      </div>
+      <div style="padding:16px 0 24px">
+        <button class="cbtn" style="margin-bottom:10px" onclick="reset0()">Отследить заказ</button>
+        <button class="cbtn out" onclick="reset0()">Вернуться в магазин</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ШТОРКА: новая карта -->
-<div class="sheet-bg" id="sheet-bg" onclick="closeSheet(event)">
+<!-- ===== S6: ОШИБКА ОПЛАТЫ ===== -->
+<div id="s6" class="sl">
+  <div class="nb"><span class="nbback" onclick="go(3)">‹ Назад</span><span class="nbttl"></span><span class="nbcls"></span></div>
+  <div class="narrow">
+    <div class="err-top">
+      <div class="err-circle">!</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:8px">Оплата не прошла</div>
+      <div style="font-size:14px;color:var(--gray);line-height:1.6;padding:0 8px">Банк отклонил платёж. Деньги не списаны.<br>Попробуйте ещё раз или выберите другой способ.</div>
+    </div>
+    <div style="padding:8px 16px 0">
+      <div class="card" style="margin:0 0 16px">
+        <div class="row" style="border-bottom:none"><span class="ri">💳</span><span class="rt" id="err-method">Карта •••• 1121</span><span class="rt" style="flex:0;color:var(--red);font-size:13px;white-space:nowrap">Отклонено</span></div>
+      </div>
+      <button class="cbtn" style="margin-bottom:10px" onclick="retryPay()">Повторить оплату</button>
+      <button class="cbtn out" onclick="go(3)">Выбрать другой способ</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.app -->
+
+<!-- ===== ШТОРКА: НОВАЯ КАРТА ===== -->
+<div class="sheet-bg" id="sheet-card" onclick="closeSheet(event,'sheet-card')">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sh"></div>
-    <div style="font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:16px">Новая карта</div>
-    <div class="fw"><div class="fl">Номер карты</div><input class="fi" id="card-num" type="text" placeholder="1234  5678  9012  3456" maxlength="19"></div>
+    <div class="sheet-ttl">Новая карта</div>
+    <div class="fw"><div class="fl">Номер карты</div><input class="fi" id="card-num" type="text" inputmode="numeric" placeholder="1234 5678 9012 3456" maxlength="19"></div>
     <div style="display:flex;gap:10px">
-      <div class="fw" style="flex:1"><div class="fl">Срок</div><input class="fi" type="text" placeholder="MM/YY" maxlength="5"></div>
-      <div class="fw" style="flex:1"><div class="fl">CVV</div><input class="fi" type="password" placeholder="•••" maxlength="3"></div>
+      <div class="fw" style="flex:1"><div class="fl">Срок</div><input class="fi" type="text" inputmode="numeric" placeholder="MM/YY" maxlength="5"></div>
+      <div class="fw" style="flex:1"><div class="fl">CVV</div><input class="fi" type="password" inputmode="numeric" placeholder="•••" maxlength="3"></div>
     </div>
-    <button class="cbtn" style="margin-top:8px" onclick="addCard()">Добавить карту</button>
+    <button class="cbtn" style="margin-top:14px" onclick="addCard()">Добавить карту</button>
   </div>
 </div>
 
-</div></div>
+<!-- ===== ШТОРКА: АДРЕС ===== -->
+<div class="sheet-bg" id="sheet-addr" onclick="closeSheet(event,'sheet-addr')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh"></div>
+    <div class="sheet-ttl">Адрес доставки</div>
+    <div class="seg" style="margin:0 0 14px">
+      <button class="sgb on" id="adm" onclick="setAddrMode('manual')">Вручную</button>
+      <button class="sgb" id="adp" onclick="setAddrMode('map')">На карте</button>
+    </div>
+    <div id="addr-manual">
+      <div class="fw"><div class="fl">Город</div><input class="fi" id="ad-city" type="text" placeholder="Москва" value="Москва"></div>
+      <div class="fw"><div class="fl">Улица и дом</div><input class="fi" id="ad-street" type="text" placeholder="ул. Яблочкова, 49"></div>
+      <div style="display:flex;gap:10px">
+        <div class="fw" style="flex:1"><div class="fl">Квартира</div><input class="fi" id="ad-flat" type="text" inputmode="numeric" placeholder="12"></div>
+        <div class="fw" style="flex:1"><div class="fl">Подъезд</div><input class="fi" id="ad-entrance" type="text" inputmode="numeric" placeholder="3"></div>
+      </div>
+      <button class="cbtn" style="margin-top:14px" onclick="saveAddr()">Сохранить адрес</button>
+    </div>
+    <div id="addr-map" style="display:none">
+      <input class="fi" id="map-search" type="text" placeholder="🔍 Поиск: улица, дом" oninput="mapSearch()">
+      <div class="map-mock">
+        <div class="map-hint">Передвиньте карту к точке доставки</div>
+        <div class="map-dot"></div><div class="map-pin">📍</div>
+        <div class="map-geo">⊕</div>
+      </div>
+      <div class="row" style="border:1px solid var(--line);border-radius:10px;border-bottom:1px solid var(--line)">
+        <span class="ri">📍</span><div style="flex:1"><div class="rt" id="map-addr">Москва, ул. Тверская, 15</div><div class="rsub">Квартиру и подъезд уточните в комментарии</div></div>
+      </div>
+      <button class="cbtn" style="margin-top:14px" onclick="saveAddrFromMap()">Доставить сюда</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ШТОРКА: ПОЛУЧАТЕЛЬ ===== -->
+<div class="sheet-bg" id="sheet-rec" onclick="closeSheet(event,'sheet-rec')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh"></div>
+    <div class="sheet-ttl">Получатель</div>
+    <div class="fw"><div class="fl">Телефон</div><input class="fi" id="rc-phone" type="tel" placeholder="+7 ___ ___-__-__"></div>
+    <div class="fw"><div class="fl">Имя — необязательно</div><input class="fi" id="rc-name" type="text" placeholder="Кто получит заказ"></div>
+    <button class="cbtn" style="margin-top:14px" onclick="saveRecipient()">Сохранить</button>
+  </div>
+</div>
+
+<!-- ===== ШТОРКА: ПУНКТ ВЫДАЧИ ===== -->
+<div class="sheet-bg" id="sheet-pvz" onclick="closeSheet(event,'sheet-pvz')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh"></div>
+    <div class="sheet-ttl">Пункт выдачи</div>
+    <div class="seg" style="margin:0 0 12px">
+      <button class="sgb on" id="pvm" onclick="setPvzMode('list')">Списком</button>
+      <button class="sgb" id="pvc" onclick="setPvzMode('map')">На карте</button>
+    </div>
+    <input class="fi" id="pvz-search" type="text" placeholder="🔍 Адрес, район или метро" oninput="renderPvzList()" style="margin-bottom:10px">
+    <div id="pvz-map" class="map-mock" style="display:none;margin:0 0 10px">
+      <div class="map-hint">Пункты выдачи рядом — нажмите на пин</div>
+      <div class="map-pvz-pin" style="top:40%;left:28%" onclick="setPvz(0)">📦</div>
+      <div class="map-pvz-pin" style="top:58%;left:58%" onclick="setPvz(1)">📦</div>
+      <div class="map-pvz-pin" style="top:30%;left:70%" onclick="setPvz(2)">📦</div>
+      <div class="map-geo">⊕</div>
+    </div>
+    <div id="pvzList"></div>
+  </div>
+</div>
+
+<!-- ===== ШТОРКА: КОММЕНТАРИЙ КУРЬЕРУ ===== -->
+<div class="sheet-bg" id="sheet-comment" onclick="closeSheet(event,'sheet-comment')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh"></div>
+    <div class="sheet-ttl">Комментарий курьеру</div>
+    <textarea class="fi" id="comment-input" style="height:96px;padding:12px 14px;resize:none;line-height:1.4" maxlength="200" placeholder="Код от подъезда, этаж, на что обратить внимание" oninput="commentCount()"></textarea>
+    <div style="font-size:12px;color:var(--gray);text-align:right;margin-top:4px" id="comment-counter">0/200</div>
+    <button class="cbtn" style="margin-top:10px" onclick="saveComment()">Сохранить</button>
+  </div>
+</div>
+
+<!-- ===== ДЕМО-ПАНЕЛЬ ===== -->
+<button class="demo-toggle" onclick="toggleDemo()">⚙ Сценарии</button>
+<div class="demo-panel" id="demoPanel">
+  <div class="demo-h">Демо-сценарии</div>
+  <div class="demo-sub">Для ревью. Сбрасывает прототип в нужное состояние.</div>
+  <button class="demo-btn" onclick="scenario('auth')"><b>▶ Авторизован (Яндекс ID)</b><small>Адрес и карта подтянуты</small></button>
+  <button class="demo-btn" onclick="scenario('guest')"><b>▶ Новый гость</b><small>Пустой чекаут, ввод с нуля</small></button>
+  <button class="demo-btn" onclick="scenario('payfail')"><b>▶ Ошибка оплаты</b><small>Банк отклонил платёж</small></button>
+  <button class="demo-btn" onclick="scenario('outzone')"><b>▶ Адрес вне зоны</b><small>Курьер недоступен → ПВЗ</small></button>
+</div>
 
 <script>
-let cur=0;
-function go(n){
-  if(n===cur)return;
-  const c=document.getElementById('s'+cur),nx=document.getElementById('s'+n);
-  if(n>cur){
-    nx.style.transition='none';nx.style.transform='translateX(100%)';nx.classList.remove('exit');
-    setTimeout(()=>{nx.style.transition='transform 0.32s cubic-bezier(.4,0,.2,1)';c.classList.remove('active');c.classList.add('exit');nx.classList.add('active');nx.style.transform='';},10);
-  } else {
-    c.style.transition='transform 0.32s cubic-bezier(.4,0,.2,1)';c.style.transform='translateX(100%)';c.classList.remove('active');nx.classList.remove('exit');nx.classList.add('active');
-    setTimeout(()=>{c.style.transform='';c.style.transition='';},350);
-  }
-  cur=n;
-  if(n===4)setTimeout(()=>go(5),2200);
-  const s=document.getElementById('s'+n);if(s)s.scrollTop=0;
+/* ===================== ДАННЫЕ (single source of truth) ===================== */
+const ITEMS=[
+  {emoji:'🎧',name:'Sony WH-1000XM5',variant:'Чёрный',qty:1,price:49990},
+  {emoji:'🔊',name:'Яндекс Станция Миди',variant:'Серый',qty:1,price:17990},
+];
+const DISCOUNT=500;
+const subtotal=ITEMS.reduce((s,i)=>s+i.price*i.qty,0); // 67 980
+const total=subtotal-DISCOUNT;                          // 67 480
+const sbpDisc=Math.round(total*0.03);                   // 2 024
+const totalSbp=total-sbpDisc;                           // 65 456
+const monthly=Math.round(total/6);                      // 11 247
+const fmt=n=>n.toLocaleString('ru-RU');
+
+const AUTH_ADDR={city:'Москва',text:'Москва, ул. Яблочкова, 49, кв. 12'};
+const AUTH_REC={name:'Артур Л.',phone:'+7 937 237-65-99'};
+const KNOWN_PHONE='+7 937 237-65-99'; // номер, по которому вошли (OTP)
+const PVZ_POOL=[
+  {text:'Ozon · Смоленская пл., 6',eta:'Завтра, 13 июня · Бесплатно',sub:'Хранение 14 дней'},
+  {text:'СДЭК · ул. Арбат, 24',eta:'Завтра, 13 июня · Бесплатно',sub:'Хранение 7 дней'},
+  {text:'Постамат · ТЦ Европейский',eta:'Послезавтра, 14 июня · Бесплатно',sub:'Хранение 3 дня'},
+];
+
+/* ===================== СОСТОЯНИЕ ===================== */
+const state={
+  screen:0,
+  mode:'auth',        // 'auth' | 'guest'
+  address:null,       // {text} | null
+  recipient:null,     // {name,phone} | null
+  delivery:'c',       // 'c' | 'p'
+  pvz:null,           // {text,eta,sub} | null
+  cards:[],           // [{last4,sub}]
+  payIdx:0,
+  selDateIdx:0,
+  payFail:false,
+  outOfZone:false,
+  courier:{door:false,call:false,comment:''}, // опции курьера
+};
+
+/* ===================== СПОСОБЫ ОПЛАТЫ ===================== */
+function payMethods(){
+  const m=[];
+  state.cards.forEach(c=>m.push({type:'card',label:'•••• '+c.last4,sub:c.sub}));
+  m.push({type:'sbp',label:'СБП',sub:'−'+fmt(sbpDisc)+' ₽',badge:'−3%'});
+  m.push({type:'bnpl',label:'Рассрочка',sub:fmt(monthly)+' ₽ × 6'});
+  return m;
 }
 
+/* ===================== НАВИГАЦИЯ ===================== */
+function go(n){
+  document.querySelectorAll('.sl').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('s'+n);
+  el.classList.add('active');
+  state.screen=n;
+  document.getElementById('app').classList.toggle('wide',n===3);
+  window.scrollTo(0,0);
+  if(n===3)renderCheckout();
+  if(n===5)renderSuccess();
+  if(n===6)renderError();
+  if(n===4){
+    const fail=state.payFail;
+    document.getElementById('load-txt').textContent=fail?'Проверяем оплату':'Проверяем оплату';
+    setTimeout(()=>go(fail?6:5),2000);
+  }
+}
+function reset0(){scenario('auth');}
+
+/* ===================== АВТОРИЗАЦИЯ → ЧЕКАУТ ===================== */
+function enter(mode){
+  state.mode=mode==='auth'?'auth':'guest';
+  if(mode==='auth'){
+    state.address={text:AUTH_ADDR.text};
+    state.recipient={name:AUTH_REC.name,phone:AUTH_REC.phone};
+    state.pvz=PVZ_POOL[0]; // ближайший пункт по профилю
+    state.cards=[{last4:'1121',sub:'Visa · сохранена'}];
+    state.payIdx=0;
+  }else{
+    state.address=null;
+    state.pvz=null; // новичок выбирает пункт сам
+    state.cards=[];
+    state.payIdx=0; // первый доступный = СБП
+    // вошёл по телефону → номер уже известен, имя необязательно;
+    // чистый гость → получателя ещё нет
+    state.recipient=mode==='phone'?{name:'',phone:KNOWN_PHONE}:null;
+  }
+  go(3);
+}
+
+/* ===================== OTP ===================== */
 let otpVal=[];
 function otpTap(v){
-  if(v==='del'){if(otpVal.length>0)otpVal.pop();}
+  if(v==='del'){if(otpVal.length)otpVal.pop();}
   else if(otpVal.length<4)otpVal.push(v);
   for(let i=0;i<4;i++){
     const b=document.getElementById('ob'+i);
     b.textContent=otpVal[i]!==undefined?otpVal[i]:'';
     b.className='otp-box'+(i===otpVal.length&&otpVal.length<4?' active':otpVal[i]!==undefined?' filled':'');
   }
-  if(otpVal.length===4)setTimeout(()=>go(3),400);
+  if(otpVal.length===4)setTimeout(()=>{otpVal=[];enter('phone');},400);
 }
 
-function setDel(t){
-  const isc=t==='c';
+/* ===================== РЕНДЕР КОРЗИНЫ ===================== */
+function renderCart(){
+  const box=document.getElementById('cartItems');
+  box.innerHTML=ITEMS.map((it,i)=>`
+    <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;${i<ITEMS.length-1?'border-bottom:0.5px solid #f0f0f0':''}">
+      <div style="width:60px;height:60px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0">${it.emoji}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600">${it.name}</div><div style="font-size:13px;color:var(--gray);margin-top:3px">${it.qty} шт. · ${it.variant}</div></div>
+      <div style="font-size:16px;font-weight:700;white-space:nowrap">${fmt(it.price)} ₽</div>
+    </div>`).join('');
+  document.getElementById('cart-sub').textContent=fmt(subtotal)+' ₽';
+  document.getElementById('cart-disc').textContent='−'+fmt(DISCOUNT)+' ₽';
+  document.getElementById('cart-total').textContent=fmt(total)+' ₽';
+}
+
+/* ===================== РЕНДЕР ЧЕКАУТА ===================== */
+function renderCheckout(){
+  // переключатель курьер/пвз
+  const isc=state.delivery==='c';
   document.getElementById('sc').classList.toggle('on',isc);
   document.getElementById('sp').classList.toggle('on',!isc);
   document.getElementById('courier-dates').style.display=isc?'block':'none';
-  document.getElementById('pvz-date').style.display=isc?'none':'block';
-  document.getElementById('addr-text').textContent=isc?'Москва, ул. Яблочкова, 49':'Пункт Ozon · Смоленская, 6';
+  document.getElementById('pvz-date').style.display=(!isc&&state.pvz)?'block':'none';
+  if(state.pvz)document.getElementById('pvz-eta').textContent=state.pvz.eta;
+  renderAddrRow();
+  renderRecipientRow();
+  renderCourierOpts();
+  renderDates();
+  renderPayRow();
+  // товары на чекауте (фото + название + кол-во, цена не дублируется)
+  document.getElementById('checkoutItems').innerHTML=ITEMS.map(it=>`
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-top:0.5px solid #f0f0f0">
+      <div style="width:44px;height:44px;border-radius:8px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${it.emoji}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">${it.name}</div><div style="font-size:12px;color:var(--gray);margin-top:2px">${it.qty} шт. · ${it.variant}</div></div>
+    </div>`).join('');
+  renderTotals();
+  renderCTA();
+}
+
+function renderAddrRow(){
+  const box=document.getElementById('addrRow');
+  if(state.delivery==='p'){
+    if(!state.pvz){
+      box.innerHTML=`<div class="row empty" style="border-bottom:none" onclick="openSheet('sheet-pvz')"><span class="ri">📦</span><div style="flex:1"><div class="rt">Выбрать пункт выдачи</div></div><span class="ra">Выбрать</span></div>`;
+    }else{
+      box.innerHTML=`<div class="row" style="border-bottom:none"><span class="ri">📦</span><div style="flex:1"><div class="rt">${state.pvz.text}</div><div class="rsub">${state.pvz.sub}</div></div><span class="ra" onclick="openSheet('sheet-pvz')">Изменить</span></div>`;
+    }
+    return;
+  }
+  if(!state.address){
+    box.innerHTML=`<div class="row empty" onclick="openSheet('sheet-addr')"><span class="ri">📍</span><div style="flex:1"><div class="rt">Указать адрес доставки</div></div><span class="ra">Добавить</span></div>`;
+  }else{
+    const warn=state.outOfZone?`<div class="warn-line">Курьер сюда не доставляет — выберите пункт выдачи</div>`:'';
+    box.innerHTML=`<div class="row"><span class="ri">📍</span><div style="flex:1"><div class="rt">${state.address.text}</div>${warn}</div><span class="ra" onclick="openSheet('sheet-addr')">Изменить</span></div>`;
+  }
+}
+
+function renderRecipientRow(){
+  const box=document.getElementById('recipientRow');
+  if(!state.recipient){
+    box.innerHTML=`<div class="row empty" style="border-bottom:none;border-top:0.5px solid #f0f0f0" onclick="openSheet('sheet-rec')"><span class="ri">👤</span><div style="flex:1"><div class="rt">Добавить получателя</div></div><span class="ra">Добавить</span></div>`;
+  }else{
+    const r=state.recipient;
+    const title=r.name?`${r.name} · ${r.phone}`:r.phone;
+    const sub=r.name?'':`<div class="rsub">Имя можно добавить, но необязательно</div>`;
+    box.innerHTML=`<div class="row" style="border-bottom:none;border-top:0.5px solid #f0f0f0"><span class="ri">👤</span><div style="flex:1"><div class="rt">${title}</div>${sub}</div><span class="ra" onclick="openSheet('sheet-rec')">Изменить</span></div>`;
+  }
+}
+
+function renderCourierOpts(){
+  document.getElementById('courier-opts').style.display=state.delivery==='c'?'block':'none';
+  document.getElementById('tg-door').classList.toggle('on',state.courier.door);
+  document.getElementById('tg-call').classList.toggle('on',state.courier.call);
+  const c=state.courier.comment;
+  document.getElementById('comment-text').textContent=c||'Комментарий курьеру';
+  document.getElementById('comment-row').classList.toggle('empty',!c);
+}
+function toggleOpt(k){state.courier[k]=!state.courier[k];renderCourierOpts();}
+function commentCount(){document.getElementById('comment-counter').textContent=document.getElementById('comment-input').value.length+'/200';}
+function saveComment(){
+  state.courier.comment=document.getElementById('comment-input').value.trim();
+  document.getElementById('sheet-comment').classList.remove('open');
+  renderCourierOpts();
 }
 
 const dates=[
-  {label:'Завтра',date:'12 июн',price:'Бесплатно',time:'10:00–22:00'},
-  {label:'Чт',date:'13 июн',price:'Бесплатно',time:'10:00–22:00'},
-  {label:'Пт',date:'14 июн',price:'Бесплатно',time:'10:00–22:00'},
-  {label:'Сб',date:'15 июн',price:'Бесплатно',time:'10:00–22:00'},
-  {label:'Вс',date:'16 июн',price:'Бесплатно',time:'10:00–22:00'},
+  {label:'Завтра',date:'13 июн',price:'Бесплатно',time:'10:00–22:00'},
+  {label:'Сб',date:'14 июн',price:'Бесплатно',time:'10:00–22:00'},
+  {label:'Вс',date:'15 июн',price:'Бесплатно',time:'10:00–22:00'},
+  {label:'Пн',date:'16 июн',price:'Бесплатно',time:'10:00–22:00'},
+  {label:'Вт',date:'17 июн',price:'Бесплатно',time:'10:00–22:00'},
 ];
-let selDateIdx=0;
-
 function renderDates(){
   const wrap=document.getElementById('dateScroll');
   wrap.innerHTML='';
   dates.forEach((d,i)=>{
     const el=document.createElement('div');
-    el.className='dchip'+(i===selDateIdx?' on':'');
+    el.className='dchip'+(i===state.selDateIdx?' on':'');
     el.innerHTML=`<div class="dchip-top">${d.label}</div><div class="dchip-mid">${d.date}</div><div class="dchip-bot">${d.price} · ${d.time}</div>`;
-    el.onclick=()=>{selDateIdx=i;renderDates();document.getElementById('suc-date').textContent=(d.label==='Завтра'?'Завтра':d.date)+', '+d.time;};
+    el.onclick=()=>{state.selDateIdx=i;renderDates();};
     wrap.appendChild(el);
   });
 }
 
-let payCards=[
-  {label:'•••• 1121',sub:'Visa · сохранена',type:'card'},
-  {label:'СБП',sub:'−1 485 ₽',type:'sbp',badge:'−3%'},
-  {label:'Рассрочка',sub:'8 248 ₽ × 6',type:'bnpl'},
-];
-let selPayIdx=0;
-
 function renderPayRow(){
   const row=document.getElementById('payRow');
   row.innerHTML='';
-  payCards.forEach((c,i)=>{
+  const methods=payMethods();
+  if(state.payIdx>=methods.length)state.payIdx=0;
+  methods.forEach((c,i)=>{
     const el=document.createElement('div');
-    el.className='pc'+(i===selPayIdx?' on':'');
+    el.className='pc'+(i===state.payIdx?' on':'');
     if(c.type==='sbp'){
       el.innerHTML=`<div style="display:flex;align-items:center;gap:5px"><div class="pn">${c.label}</div><div class="pbadge">${c.badge}</div></div><div class="ps">${c.sub}</div>`;
-    } else {
+    }else{
       el.innerHTML=`<div class="pn">${c.label}</div><div class="ps">${c.sub}</div>`;
     }
     el.onclick=()=>setPay(i);
@@ -372,36 +708,212 @@ function renderPayRow(){
   const addEl=document.createElement('div');
   addEl.className='pc dashed';
   addEl.innerHTML='<div class="pn" style="font-size:20px;color:#c7c7cc">+</div><div class="ps">Новая карта</div>';
-  addEl.onclick=openSheet;
+  addEl.onclick=()=>openSheet('sheet-card');
   row.appendChild(addEl);
+  // bnpl tip
+  const m=methods[state.payIdx];
+  const tip=document.getElementById('bnpl-tip');
+  tip.style.display=m.type==='bnpl'?'block':'none';
+  document.getElementById('bnpl-m').textContent=fmt(monthly)+' ₽';
+  document.getElementById('bnpl-f').textContent=fmt(monthly)+' ₽';
 }
 
-function setPay(idx){
-  selPayIdx=idx;
-  renderPayRow();
-  const c=payCards[idx];
-  document.getElementById('bnpl-tip').style.display=c.type==='bnpl'?'block':'none';
-  const btn=document.getElementById('paybtn'),fp=document.getElementById('fp');
-  if(c.type==='sbp'){fp.textContent='48 005 ₽';btn.textContent='Перейти в банк · 48 005 ₽';}
-  else if(c.type==='bnpl'){fp.textContent='49 490 ₽';btn.textContent='Оформить рассрочку · 8 248 ₽/мес';}
-  else{fp.textContent='49 490 ₽';btn.textContent='Оплатить 49 490 ₽';}
+function setPay(i){state.payIdx=i;renderPayRow();renderTotals();renderCTA();}
+
+function setDel(t){
+  state.delivery=t;
+  renderCheckout();
 }
 
-function openSheet(){document.getElementById('sheet-bg').classList.add('open');document.getElementById('card-num').value='';}
-function closeSheet(e){if(e.target===document.getElementById('sheet-bg'))document.getElementById('sheet-bg').classList.remove('open');}
+function renderTotals(){
+  document.getElementById('co-sub').textContent=fmt(subtotal)+' ₽';
+  document.getElementById('co-disc').textContent='−'+fmt(DISCOUNT)+' ₽';
+  const m=payMethods()[state.payIdx];
+  const sbpLine=document.getElementById('co-pay-line');
+  if(m.type==='sbp'){
+    sbpLine.style.display='flex';
+    document.getElementById('co-pay-val').textContent='−'+fmt(sbpDisc)+' ₽';
+    document.getElementById('co-total').textContent=fmt(totalSbp)+' ₽';
+  }else{
+    sbpLine.style.display='none';
+    document.getElementById('co-total').textContent=fmt(total)+' ₽';
+  }
+}
+
+/* ===================== SMART CTA ===================== */
+let ctaAction=()=>{};
+function ctaInfo(){
+  if(state.delivery==='c'&&state.outOfZone)
+    return {label:'Курьер недоступен — выбрать пункт выдачи',cls:'warn',act:()=>setDel('p')};
+  if(state.delivery==='c'&&!state.address)
+    return {label:'Указать адрес доставки',cls:'lead',act:()=>openSheet('sheet-addr')};
+  if(state.delivery==='p'&&!state.pvz)
+    return {label:'Выбрать пункт выдачи',cls:'lead',act:()=>openSheet('sheet-pvz')};
+  if(!state.recipient)
+    return {label:'Добавить получателя',cls:'lead',act:()=>openSheet('sheet-rec')};
+  const m=payMethods()[state.payIdx];
+  if(m.type==='sbp')return {label:'Перейти в банк · '+fmt(totalSbp)+' ₽',cls:'',act:pay};
+  if(m.type==='bnpl')return {label:'Оформить рассрочку · '+fmt(monthly)+' ₽/мес',cls:'',act:pay};
+  return {label:'Оплатить '+fmt(total)+' ₽',cls:'',act:pay};
+}
+function renderCTA(){
+  const btn=document.getElementById('paybtn');
+  const info=ctaInfo();
+  btn.textContent=info.label;
+  btn.className='cbtn'+(info.cls?' '+info.cls:'');
+  ctaAction=info.act;
+  // оферту показываем только когда кнопка — реальная оплата
+  document.getElementById('legal').style.visibility=info.act===pay?'visible':'hidden';
+}
+
+function pay(){go(4);}
+function retryPay(){state.payFail=false;go(4);}
+function renderError(){
+  const m=payMethods()[state.payIdx];
+  document.getElementById('err-method').textContent=
+    m.type==='card'?'Карта '+m.label:m.type==='sbp'?'Оплата через СБП':'Рассрочка Сплит';
+}
+
+/* ===================== ШТОРКИ ===================== */
+function openSheet(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='sheet-card')document.getElementById('card-num').value='';
+  if(id==='sheet-pvz'){document.getElementById('pvz-search').value='';setPvzMode('list');renderPvzList();}
+  if(id==='sheet-rec'){ // предзаполняем текущими данными
+    document.getElementById('rc-name').value=state.recipient&&state.recipient.name?state.recipient.name:'';
+    document.getElementById('rc-phone').value=state.recipient&&state.recipient.phone?state.recipient.phone:'';
+  }
+  if(id==='sheet-addr')setAddrMode('manual'); // открываем всегда в ручном режиме
+  if(id==='sheet-comment'){document.getElementById('comment-input').value=state.courier.comment||'';commentCount();}
+}
+function setAddrMode(m){
+  const map=m==='map';
+  document.getElementById('adm').classList.toggle('on',!map);
+  document.getElementById('adp').classList.toggle('on',map);
+  document.getElementById('addr-manual').style.display=map?'none':'block';
+  document.getElementById('addr-map').style.display=map?'block':'none';
+}
+function mapSearch(){
+  const v=document.getElementById('map-search').value.trim();
+  if(v)document.getElementById('map-addr').textContent=/москва|спб|санкт/i.test(v)?v:'Москва, '+v;
+}
+function saveAddrFromMap(){
+  state.address={text:document.getElementById('map-addr').textContent};
+  state.outOfZone=false;
+  document.getElementById('map-search').value='';
+  document.getElementById('sheet-addr').classList.remove('open');
+  renderAddrRow();renderCTA();
+}
+function setPvzMode(m){
+  const map=m==='map';
+  document.getElementById('pvm').classList.toggle('on',!map);
+  document.getElementById('pvc').classList.toggle('on',map);
+  document.getElementById('pvz-map').style.display=map?'block':'none';
+}
+function renderPvzList(){
+  const q=(document.getElementById('pvz-search').value||'').toLowerCase().trim();
+  const box=document.getElementById('pvzList');
+  const items=PVZ_POOL.map((p,i)=>({p,i})).filter(({p})=>!q||(p.text+' '+p.sub).toLowerCase().includes(q));
+  if(!items.length){
+    box.innerHTML=`<div style="text-align:center;color:var(--gray);font-size:13px;padding:18px 8px">Ничего не нашлось по запросу. Уточните адрес или район.</div>`;
+    return;
+  }
+  box.innerHTML=items.map(({p,i})=>{
+    const on=state.pvz&&state.pvz.text===p.text;
+    return `<div class="row" style="cursor:pointer;border-bottom:0.5px solid #f0f0f0;border-radius:12px;${on?'background:var(--orange-soft)':''}" onclick="setPvz(${i})">
+      <span class="ri">📦</span>
+      <div style="flex:1"><div class="rt">${p.text}</div><div class="rsub">${p.sub} · ${p.eta.split(' · ')[0]}</div></div>
+      ${on?'<span class="ra">✓</span>':'<span class="ra">Выбрать</span>'}
+    </div>`;
+  }).join('');
+}
+function setPvz(i){
+  state.pvz=PVZ_POOL[i];
+  document.getElementById('sheet-pvz').classList.remove('open');
+  renderCheckout();
+}
+function closeSheet(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
 
 function addCard(){
-  document.getElementById('sheet-bg').classList.remove('open');
+  document.getElementById('sheet-card').classList.remove('open');
   const raw=document.getElementById('card-num').value.replace(/\D/g,'');
-  const last4=raw.length>=4?raw.slice(-4):String(Math.floor(1000+Math.random()*9000));
-  payCards.unshift({label:'•••• '+last4,sub:'Новая карта',type:'card'});
-  selPayIdx=0;
-  renderPayRow();
-  setPay(0);
+  const last4=raw.length>=4?raw.slice(-4):'4567';
+  state.cards.unshift({last4,sub:'Новая карта'});
+  state.payIdx=0;
+  renderPayRow();renderTotals();renderCTA();
 }
 
-renderDates();
-renderPayRow();
+function saveAddr(){
+  const street=document.getElementById('ad-street').value.trim();
+  const city=document.getElementById('ad-city').value.trim()||'Москва';
+  const flat=document.getElementById('ad-flat').value.trim();
+  if(!street){document.getElementById('ad-street').focus();return;}
+  state.address={text:city+', '+street+(flat?', кв. '+flat:'')};
+  state.outOfZone=false; // новый адрес считаем в зоне
+  document.getElementById('sheet-addr').classList.remove('open');
+  renderAddrRow();renderCTA();
+}
+
+function saveRecipient(){
+  const name=document.getElementById('rc-name').value.trim();
+  const phone=document.getElementById('rc-phone').value.trim();
+  if(!phone){document.getElementById('rc-phone').focus();return;} // имя необязательно, телефон — да
+  state.recipient={name,phone};
+  document.getElementById('sheet-rec').classList.remove('open');
+  renderRecipientRow();renderCTA();
+}
+
+/* ===================== УСПЕХ ===================== */
+function renderSuccess(){
+  document.getElementById('suc-items').innerHTML=ITEMS.map((it,i)=>`
+    <div style="display:flex;gap:12px;align-items:center;${i<ITEMS.length-1?'margin-bottom:14px':'margin-bottom:16px'}">
+      <div style="width:52px;height:52px;border-radius:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">${it.emoji}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600">${it.name}</div><div style="font-size:13px;color:var(--gray);margin-top:3px">${it.qty} шт. · ${fmt(it.price)} ₽</div></div>
+    </div>`).join('');
+  // дата
+  if(state.delivery==='p'){
+    document.getElementById('suc-date').textContent=state.pvz?state.pvz.eta.split(' · ')[0]+' · пункт выдачи':'Пункт выдачи';
+    document.getElementById('suc-addr').textContent=state.pvz?state.pvz.text:'';
+  }else{
+    const d=dates[state.selDateIdx];
+    document.getElementById('suc-date').textContent=(d.label==='Завтра'?'Завтра':d.date)+', '+d.time;
+    document.getElementById('suc-addr').textContent=state.address?state.address.text:AUTH_ADDR.text;
+  }
+  const ph=state.recipient?state.recipient.phone:AUTH_REC.phone;
+  document.getElementById('suc-contact').textContent='Подтверждение на '+ph;
+}
+
+/* ===================== ДЕМО-ПАНЕЛЬ ===================== */
+function toggleDemo(){document.getElementById('demoPanel').classList.toggle('open');}
+function scenario(name){
+  // сброс
+  state.mode='auth';state.address=null;state.recipient=null;state.delivery='c';state.pvz=null;
+  state.cards=[];state.payIdx=0;state.selDateIdx=0;state.payFail=false;state.outOfZone=false;
+  state.courier={door:false,call:false,comment:''};
+  otpVal=[];
+  document.getElementById('demoPanel').classList.remove('open');
+  if(name==='auth'){
+    enterData('auth');go(0);
+  }else if(name==='guest'){
+    go(0); // пройдёт авторизацию как гость сам
+  }else if(name==='payfail'){
+    enterData('auth');state.payFail=true;go(3);
+  }else if(name==='outzone'){
+    enterData('auth');state.outOfZone=true;go(3);
+  }
+  renderCart();
+}
+function enterData(mode){
+  state.mode=mode;
+  state.address={text:AUTH_ADDR.text};
+  state.recipient={name:AUTH_REC.name,phone:AUTH_REC.phone};
+  state.pvz=PVZ_POOL[0];
+  state.cards=[{last4:'1121',sub:'Visa · сохранена'}];
+  state.payIdx=0;
+}
+
+/* ===================== ИНИЦИАЛИЗАЦИЯ ===================== */
+renderCart();
 </script>
 </body>
 </html>
